@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIRTU-BOARD AI - Engineering Smart Board</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(144, 238, 144, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(144, 238, 144, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(50, 205, 50, 0.1) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.95), rgba(50, 205, 50, 0.95));
+            border-radius: 25px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 40px rgba(144, 238, 144, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            animation: rotate3d 3s ease-in-out infinite;
+        }
+
+        @keyframes rotate3d {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        .logo-icon i {
+            font-size: 40px;
+            background: linear-gradient(135deg, #32cd32, #90ee90);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 36px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            font-weight: 700;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            background: #00ff00;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+        }
+
+        .status-text {
+            color: #32cd32;
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .subject-info {
+            display: flex;
+            gap: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .subject-info span {
+            background: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            color: #32cd32;
+            font-weight: 600;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tagline {
+            text-align: center;
+            color: white;
+            font-size: 20px;
+            font-style: italic;
+            margin-top: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            font-weight: 500;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .board-section {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(144, 238, 144, 0.3);
+        }
+
+        .listening-status {
+            text-align: center;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.15), rgba(50, 205, 50, 0.1));
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 2px dashed rgba(144, 238, 144, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .listening-status::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .listening-status i {
+            font-size: 50px;
+            background: linear-gradient(135deg, #32cd32, #90ee90);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: brainPulse 1.5s infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes brainPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        .listening-status p {
+            color: #32cd32;
+            font-size: 20px;
+            margin-top: 15px;
+            font-weight: 600;
+            position: relative;
+            z-index: 2;
+        }
+
+        .lecture-board {
+            background: linear-gradient(135deg, #f8fff8, #ffffff);
+            border: 3px solid rgba(144, 238, 144, 0.4);
+            border-radius: 20px;
+            padding: 25px;
+            min-height: 300px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 10px rgba(144, 238, 144, 0.1);
+        }
+
+        .board-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #32cd32;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(144, 238, 144, 0.3);
+        }
+
+        .lecture-content {
+            color: #333;
+            line-height: 2.2;
+        }
+
+        .lecture-content li {
+            margin: 15px 0;
+            padding-left: 15px;
+            list-style: none;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .lecture-content li:before {
+            content: "▶";
+            color: #32cd32;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
+            border: 2px solid rgba(144, 238, 144, 0.4);
+            color: #32cd32;
+            padding: 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .control-btn:hover {
+            background: linear-gradient(135deg, #90ee90, #32cd32);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(144, 238, 144, 0.4);
+        }
+
+        .clean-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(144, 238, 144, 0.3);
+        }
+
+        .panel-title {
+            color: #32cd32;
+            font-size: 24px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+
+        .usage-indicator {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.1), rgba(50, 205, 50, 0.05));
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(144, 238, 144, 0.2);
+        }
+
+        .usage-bar {
+            width: 100%;
+            height: 25px;
+            background: rgba(144, 238, 144, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #32cd32, #90ee90, #32cd32);
+            background-size: 200% 100%;
+            width: 78%;
+            transition: width 0.5s;
+            animation: gradient-shift 3s ease infinite;
+            box-shadow: 0 0 10px rgba(50, 205, 50, 0.5);
+        }
+
+        @keyframes gradient-shift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .usage-text {
+            color: #333;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .clean-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .clean-option {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.15), rgba(50, 205, 50, 0.1));
+            border: 2px solid rgba(144, 238, 144, 0.3);
+            padding: 15px;
+            border-radius: 12px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .clean-option:hover {
+            background: linear-gradient(135deg, #90ee90, #32cd32);
+            color: white;
+            transform: translateX(8px);
+            box-shadow: 0 5px 20px rgba(144, 238, 144, 0.4);
+        }
+
+        .clean-option i {
+            color: #32cd32;
+            font-size: 18px;
+        }
+
+        .clean-option:hover i {
+            color: white;
+        }
+
+        .voice-commands {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 2px solid rgba(144, 238, 144, 0.3);
+        }
+
+        .voice-command {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.1), rgba(50, 205, 50, 0.05));
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            color: #333;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            border-left: 4px solid #32cd32;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(144, 238, 144, 0.3);
+            transition: all 0.4s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(144, 238, 144, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 50px rgba(144, 238, 144, 0.3);
+            border-color: #32cd32;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-icon i {
+            font-size: 32px;
+            background: linear-gradient(135deg, #32cd32, #90ee90);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .feature-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-desc {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timetable-section {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(144, 238, 144, 0.3);
+        }
+
+        .timetable-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .timetable-header h2 {
+            color: #32cd32;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .day-selector {
+            display: flex;
+            gap: 8px;
+        }
+
+        .day-btn {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.15), rgba(50, 205, 50, 0.1));
+            border: 2px solid rgba(144, 238, 144, 0.3);
+            color: #32cd32;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .day-btn:hover {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.3), rgba(50, 205, 50, 0.2));
+            transform: translateY(-2px);
+        }
+
+        .day-btn.active {
+            background: linear-gradient(135deg, #90ee90, #32cd32);
+            color: white;
+            box-shadow: 0 5px 20px rgba(144, 238, 144, 0.4);
+        }
+
+        .lecture-slots {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lecture-slot {
+            background: linear-gradient(135deg, rgba(144, 238, 144, 0.08), rgba(50, 205, 50, 0.05));
+            border-left: 5px solid #32cd32;
+            padding: 20px;
+            border-radius: 15px;
+            display: grid;
+            grid-template-columns: 120px 1fr 140px;
+            gap: 20px;
+            align-items: center;
+            transition: all 0.3s;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .lecture-slot:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 25px rgba(144, 238, 144, 0.3);
+        }
+
+        .slot-time {
+            color: #32cd32;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slot-subject {
+            color: #333;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .slot-room {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .slot-status {
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #00ff00, #32cd32);
+            color: white;
+            box-shadow: 0 3px 15px rgba(0, 255, 0, 0.4);
+            animation: pulse-badge 2s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%, 100% { box-shadow: 0 3px 15px rgba(0, 255, 0, 0.4); }
+            50% { box-shadow: 0 3px 25px rgba(0, 255, 0, 0.6); }
+        }
+
+        .status-upcoming {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: white;
+            box-shadow: 0 3px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, #b0b0b0, #808080);
+            color: white;
+        }
+
+        .alert-box {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(255, 140, 0, 0.1));
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid rgba(255, 165, 0, 0.4);
+            border-left: 5px solid #ffa500;
+        }
+
+        .alert-box p {
+            color: #ff8c00;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-top">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <div>
+                        <h1>VIRTU-BOARD AI</h1>
+                        <p class="tagline">"Write nothing. Clean nothing. Teach everything."</p>
+                    </div>
+                </div>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span class="status-text">ENGINEERING CLASS LIVE</span>
+                </div>
+            </div>
+            <div class="subject-info">
+                <span><i class="fas fa-book"></i> Data Structures</span>
+                <span><i class="fas fa-layer-group"></i> Trees & Graphs</span>
+                <span><i class="fas fa-users"></i> Students: 45</span>
+                <span><i class="fas fa-clock"></i> 11:00 AM</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Board Section -->
+            <div class="board-section">
+                <div class="listening-status">
+                    <i class="fas fa-brain"></i>
+                    <p>"Listening to Faculty…"</p>
+                </div>
+
+                <div class="lecture-board">
+                    <div class="board-title">
+                        <i class="fas fa-book-open"></i>
+                        AI-Generated Lecture Board
+                    </div>
+                    <div class="lecture-content" id="board" contenteditable="true">
+                       Type here or use Voice Write…
+                        <ul>
+                            <li>Definition of Binary Tree</li>
+                            <li>Types of Trees (Binary, BST, AVL, Red-Black)</li>
+                            <li>Traversal Algorithms (Inorder, Preorder, Postorder)</li>
+                            <li>Tree Properties & Height Calculation</li>
+                            <li><i class="fas fa-project-diagram"></i> Auto-Generated Tree Diagram</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <br>
+
+                <div class="controls">
+                <button class="control-btn" id="voiceWrite">🎤 Voice Write</button>
+                <button class="control-btn" id="smartClean">🧹 Smart Clean</button>
+                <button class="control-btn" id="undo">↩ Undo</button>
+                <button class="control-btn" id="pin">📌 Pin</button>
+                <button class="control-btn" id="download">⬇ Auto Notes</button>
+                <button class="control-btn" id="voiceClean">🎤 Voice Clean</button>
+                </div>
+            <!-- Clean Panel -->
+            <div class="clean-panel">
+                <h2 class="panel-title">
+                    <i class="fas fa-sparkles"></i>
+                    Smart Clean AI
+                </h2>
+
+                <div class="usage-indicator">
+                    <p class="usage-text"><i class="fas fa-info-circle"></i> Board Usage Level</p>
+                    <div class="usage-bar">
+                        <div class="usage-fill" id="usageFill"></div>
+                        <p class="usage-text" id="usageText">78% Full</p>
+
+                </div>
+
+                <div class="alert-box">
+                    <p>
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Suggested Action: Partial Clean
+                    </p>
+                </div>
+
+                <div class="clean-options">
+                    <div class="clean-option">
+                        <i class="fas fa-eraser"></i>
+                        Clean Algorithms Section
+                    </div>
+                    <div class="clean-option">
+                        <i class="fas fa-trash-alt"></i>
+                        Clear Old Diagrams
+                    </div>
+                    <div class="clean-option">
+                        <i class="fas fa-filter"></i>
+                        Clear Non-Pinned Content
+                    </div>
+                </div>
+
+                <div class="voice-commands">
+                    <p style="color: #32cd32; font-weight: 700; margin-bottom: 15px; font-size: 16px;">
+                        <i class="fas fa-microphone"></i> Voice Commands
+                    </p>
+                    <div class="voice-command">
+                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
+                        "Clean left side only"
+                    </div>
+                    <div class="voice-command">
+                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
+                        "Erase last topic"
+                    </div>
+                    <div class="voice-command">
+                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
+                        "Keep formulas, clean rest"
+                    </div>
+                    <div class="voice-command">
+                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
+                        "Clear everything"
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-code"></i></div>
+                <div class="feature-title">Auto Code Formatting</div>
+                <div class="feature-desc">For C, Python, Java - Perfect syntax 
+                    highlighting</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-sitemap"></i></div>
+                <div class="feature-title">Flowchart & Block Diagrams</div>
+                <div class="feature-desc">DAA, OS, DBMS - Auto-generated visuals</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+                <div class="feature-title">Formula Highlighter</div>
+                <div class="feature-desc">Maths, Physics - Enhanced visibility</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-play-circle"></i></div>
+                <div class="feature-title">Algorithm Animation</div>
+                <div class="feature-desc">Step-wise execution visualization</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-microchip"></i></div>
+                <div class="feature-title">Circuit Diagram Generator</div>
+                <div class="feature-desc">ECE - Instant circuit visualization</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
+                <div class="feature-title">UML Generator</div>
+                <div class="feature-desc">Software Engineering - Auto class diagrams</div>
+            </div>
+        </div>
+
+        <!-- Timetable Section -->
+        <div class="timetable-section">
+            <div class="timetable-header">
+                <h2><i class="fas fa-calendar-alt"></i> Today's Schedule</h2>
+                <div class="day-selector">
+                    <button class="control-btn" id="voiceBtn">🎤 Voice Write</button>
+                    <button class="control-btn" id="cleanBtn">🧹 Smart Clean</button>
+                    <button class="control-btn" id="voiceCleanBtn">🎤 Voice Clean</button>
+                    <button class="control-btn" id="undoBtn">↩ Undo</button>
+                    <button class="control-btn" id="pinBtn">📌 Pin</button>
+                    <button class="control-btn" id="downloadBtn">⬇ Auto Notes</button>
+
+                </div>
+            </div>
+
+            <div class="lecture-slots">
+                <div class="lecture-slot">
+                    <div class="slot-time">
+                        <i class="fas fa-clock"></i> 09:00 AM
+                    </div>
+                    <div>
+                        <div class="slot-subject">Data Structures</div>
+                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-301</div>
+                    </div>
+                    <div class="slot-status">
+                        <span class="status-badge status-completed">Completed</span>
+                    </div>
+                </div>
+
+                <div class="lecture-slot">
+                    <div class="slot-time">
+                        <i class="fas fa-clock"></i> 11:00 AM
+                    </div>
+                    <div>
+                        <div class="slot-subject">Operating Systems</div>
+                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-302</div>
+                    </div>
+                    <div class="slot-status">
+                        <span class="status-badge status-active">Active Now</span>
+                    </div>
+                </div>
+
+                <div class="lecture-slot">
+                    <div class="slot-time">
+                        <i class="fas fa-clock"></i> 02:00 PM
+                    </div>
+                    <div>
+                        <div class="slot-subject">Database Management</div>
+                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-303</div>
+                    </div>
+                    <div class="slot-status">
+                        <span class="status-badge status-upcoming">Upcoming</span>
+                    </div>
+                </div>
+
+                <div class="lecture-slot">
+                    <div class="slot-time">
+                        <i class="fas fa-clock"></i> 04:00 PM
+                    </div>
+                    <div>
+                        <div class="slot-subject">Algorithm Design</div>
+                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-304</div>
+                    </div>
+                    <div class="slot-status">
+                        <span class="status-badge status-upcoming">Upcoming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const board = document.getElementById("board");
+        const voiceBtn = document.getElementById("voiceWrite");
+        const cleanBtn = document.getElementById("smartClean");
+        const undoBtn = document.getElementById("undo");
+        const pinBtn = document.getElementById("pin");
+        const downloadBtn = document.getElementById("download");
+        const voiceCleanBtn = document.getElementById("voiceClean");
+
+        let pinned = false;
+        let history = [];
+
+/* Save History */
+        function save() { history.push(board.innerHTML); }
+
+/* Voice Write */
+         voiceBtn.onclick = () => {
+             const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+             rec.start();
+             rec.onresult = e => { save(); board.innerHTML += "<br>• " + e.results[0][0].transcript; }
+};
+         cleanBtn.onclick = () => {
+          if(pinned) return alert("Pinned content locked 🔒");
+          save();
+          board.innerHTML = "";
+};
+
+/* Undo */
+         undoBtn.onclick = () => { if(history.length) board.innerHTML = history.pop(); };
+
+/* Pin */
+         pinBtn.onclick = () => {
+         pinned = !pinned;
+         pinBtn.innerText = pinned ? "🔒 Pinned" : "📌 Pin";
+} ;
+
+/* Voice Clean */
+         voiceCleanBtn.onclick = () => {
+         const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+         rec.start();
+         rec.onresult = e => {
+         if(e.results[0][0].transcript.toLowerCase().includes("clear") && !pinned){
+         save(); board.innerHTML="";
+   }
+ };
+};
+
+/* Download Notes */
+         downloadBtn.onclick = () => {
+         const blob = new Blob([board.innerText], {type:"text/plain"});
+         const a = document.createElement("a");
+         a.href = URL.createObjectURL(blob);
+         a.download = "VirtuBoard_Notes.txt";
+         a.click();
+};
+</script>
+
+</body>
+</html>
