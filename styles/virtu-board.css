@@ -1,16 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIRTU-BOARD AI - Engineering Smart Board</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+       /*virtu-board.css*/
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -285,34 +273,51 @@
         }
 
         .controls {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-        }
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+          margin-top: 20px;
+}
+        /* ===== CONTROL BUTTON VISIBILITY FIX ===== */
 
-        .control-btn {
-            background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
-            border: 2px solid rgba(144, 238, 144, 0.4);
-            color: #32cd32;
-            padding: 14px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 600;
-        }
+.control-btn,
+.clean-option,
+.day-btn {
+  color: #064e1c !important;          /* Dark green text */
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
 
-        .control-btn:hover {
-            background: linear-gradient(135deg, #90ee90, #32cd32);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(144, 238, 144, 0.4);
-        }
+.control-btn i,
+.clean-option i {
+  color: #064e1c !important;
+}
 
+.control-btn {
+  background: #eaffea !important;
+  border: 2px solid #32cd32 !important;
+}
+
+.control-btn:hover {
+  background: #32cd32 !important;
+  color: #003300 !important;
+}
+
+.clean-option {
+  background: #f3fff3 !important;
+  border: 2px solid #32cd32 !important;
+}
+
+.clean-option:hover {
+  background: #32cd32 !important;
+  color: #003300 !important;
+}
+
+
+.control-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 0 8px rgba(50, 255, 106, 0.5);
+}
         .clean-panel {
             background: white;
             border-radius: 25px;
@@ -377,7 +382,7 @@
         }
 
         .clean-option {
-            background: linear-gradient(135deg, rgba(144, 238, 144, 0.15), rgba(50, 205, 50, 0.1));
+            background: linear-gradient(135deg, rgba(21, 22, 21, 0.15), rgba(50, 205, 50, 0.1));
             border: 2px solid rgba(144, 238, 144, 0.3);
             padding: 15px;
             border-radius: 12px;
@@ -655,293 +660,699 @@
             align-items: center;
             gap: 10px;
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-top">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div>
-                    <div>
-                        <h1>VIRTU-BOARD AI</h1>
-                        <p class="tagline">"Write nothing. Clean nothing. Teach everything."</p>
-                    </div>
-                </div>
-                <div class="status">
-                    <div class="status-dot"></div>
-                    <span class="status-text">ENGINEERING CLASS LIVE</span>
-                </div>
-            </div>
-            <div class="subject-info">
-                <span><i class="fas fa-book"></i> Data Structures</span>
-                <span><i class="fas fa-layer-group"></i> Trees & Graphs</span>
-                <span><i class="fas fa-users"></i> Students: 45</span>
-                <span><i class="fas fa-clock"></i> 11:00 AM</span>
-            </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Board Section -->
-            <div class="board-section">
-                <div class="listening-status">
-                    <i class="fas fa-brain"></i>
-                    <p>"Listening to Faculty…"</p>
-                </div>
+        /* Notification System */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #32cd32, #90ee90);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(50, 205, 50, 0.4);
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+  font-weight: 600;
+}
 
-                <div class="lecture-board">
-                    <div class="board-title">
-                        <i class="fas fa-book-open"></i>
-                        AI-Generated Lecture Board
-                    </div>
-                    <div class="lecture-content" id="board" contenteditable="true">
-                       Type here or use Voice Write…
-                        <ul>
-                            <li>Definition of Binary Tree</li>
-                            <li>Types of Trees (Binary, BST, AVL, Red-Black)</li>
-                            <li>Traversal Algorithms (Inorder, Preorder, Postorder)</li>
-                            <li>Tree Properties & Height Calculation</li>
-                            <li><i class="fas fa-project-diagram"></i> Auto-Generated Tree Diagram</li>
-                        </ul>
-                    </div>
-                </div>
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
 
-                <br>
+/* Listening Animation */
+.listening-status.active {
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(255, 100, 100, 0.1));
+  border-color: rgba(255, 0, 0, 0.4);
+  animation: pulse-red 1s infinite;
+}
 
-                <div class="controls">
-                <button class="control-btn" id="voiceWrite">🎤 Voice Write</button>
-                <button class="control-btn" id="smartClean">🧹 Smart Clean</button>
-                <button class="control-btn" id="undo">↩ Undo</button>
-                <button class="control-btn" id="pin">📌 Pin</button>
-                <button class="control-btn" id="download">⬇ Auto Notes</button>
-                <button class="control-btn" id="voiceClean">🎤 Voice Clean</button>
-                </div>
-            <!-- Clean Panel -->
-            <div class="clean-panel">
-                <h2 class="panel-title">
-                    <i class="fas fa-sparkles"></i>
-                    Smart Clean AI
-                </h2>
+@keyframes pulse-red {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 0, 0, 0);
+  }
+}
 
-                <div class="usage-indicator">
-                    <p class="usage-text"><i class="fas fa-info-circle"></i> Board Usage Level</p>
-                    <div class="usage-bar">
-                        <div class="usage-fill" id="usageFill"></div>
-                        <p class="usage-text" id="usageText">78% Full</p>
+.status-dot.listening {
+  background: #ff0000;
+  box-shadow: 0 0 20px #ff0000;
+  animation: pulse-listening 1s infinite;
+}
 
-                </div>
+@keyframes pulse-listening {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+}
 
-                <div class="alert-box">
-                    <p>
-                        <i class="fas fa-exclamation-triangle"></i>
-                        Suggested Action: Partial Clean
-                    </p>
-                </div>
+/* Control Buttons Enhanced */
+.control-btn {
+  position: relative;
+  overflow: hidden;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
 
-                <div class="clean-options">
-                    <div class="clean-option">
-                        <i class="fas fa-eraser"></i>
-                        Clean Algorithms Section
-                    </div>
-                    <div class="clean-option">
-                        <i class="fas fa-trash-alt"></i>
-                        Clear Old Diagrams
-                    </div>
-                    <div class="clean-option">
-                        <i class="fas fa-filter"></i>
-                        Clear Non-Pinned Content
-                    </div>
-                </div>
+.control-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
 
-                <div class="voice-commands">
-                    <p style="color: #32cd32; font-weight: 700; margin-bottom: 15px; font-size: 16px;">
-                        <i class="fas fa-microphone"></i> Voice Commands
-                    </p>
-                    <div class="voice-command">
-                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
-                        "Clean left side only"
-                    </div>
-                    <div class="voice-command">
-                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
-                        "Erase last topic"
-                    </div>
-                    <div class="voice-command">
-                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
-                        "Keep formulas, clean rest"
-                    </div>
-                    <div class="voice-command">
-                        <i class="fas fa-quote-left" style="color: #32cd32;"></i>
-                        "Clear everything"
-                    </div>
-                </div>
-            </div>
-        </div>
+.control-btn:active::before {
+  width: 300px;
+  height: 300px;
+}
 
-        <!-- Features Grid -->
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-code"></i></div>
-                <div class="feature-title">Auto Code Formatting</div>
-                <div class="feature-desc">For C, Python, Java - Perfect syntax 
-                    highlighting</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-sitemap"></i></div>
-                <div class="feature-title">Flowchart & Block Diagrams</div>
-                <div class="feature-desc">DAA, OS, DBMS - Auto-generated visuals</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-calculator"></i></div>
-                <div class="feature-title">Formula Highlighter</div>
-                <div class="feature-desc">Maths, Physics - Enhanced visibility</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-play-circle"></i></div>
-                <div class="feature-title">Algorithm Animation</div>
-                <div class="feature-desc">Step-wise execution visualization</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-microchip"></i></div>
-                <div class="feature-title">Circuit Diagram Generator</div>
-                <div class="feature-desc">ECE - Instant circuit visualization</div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
-                <div class="feature-title">UML Generator</div>
-                <div class="feature-desc">Software Engineering - Auto class diagrams</div>
-            </div>
-        </div>
+.control-btn.active {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  color: white;
+  animation: pulse-btn 1s infinite;
+}
 
-        <!-- Timetable Section -->
-        <div class="timetable-section">
-            <div class="timetable-header">
-                <h2><i class="fas fa-calendar-alt"></i> Today's Schedule</h2>
-                <div class="day-selector">
-                    <button class="control-btn" id="voiceBtn">🎤 Voice Write</button>
-                    <button class="control-btn" id="cleanBtn">🧹 Smart Clean</button>
-                    <button class="control-btn" id="voiceCleanBtn">🎤 Voice Clean</button>
-                    <button class="control-btn" id="undoBtn">↩ Undo</button>
-                    <button class="control-btn" id="pinBtn">📌 Pin</button>
-                    <button class="control-btn" id="downloadBtn">⬇ Auto Notes</button>
+.control-btn.pinned {
+  background: linear-gradient(135deg, #ffa500, #ffb733);
+  color: white;
+}
 
-                </div>
-            </div>
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-            <div class="lecture-slots">
-                <div class="lecture-slot">
-                    <div class="slot-time">
-                        <i class="fas fa-clock"></i> 09:00 AM
-                    </div>
-                    <div>
-                        <div class="slot-subject">Data Structures</div>
-                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-301</div>
-                    </div>
-                    <div class="slot-status">
-                        <span class="status-badge status-completed">Completed</span>
-                    </div>
-                </div>
+@keyframes pulse-btn {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 68, 68, 0.8);
+  }
+}
 
-                <div class="lecture-slot">
-                    <div class="slot-time">
-                        <i class="fas fa-clock"></i> 11:00 AM
-                    </div>
-                    <div>
-                        <div class="slot-subject">Operating Systems</div>
-                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-302</div>
-                    </div>
-                    <div class="slot-status">
-                        <span class="status-badge status-active">Active Now</span>
-                    </div>
-                </div>
+/* Pin Badge */
+.pin-badge {
+  background: linear-gradient(135deg, #ffa500, #ff8c00);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-left: 12px;
+  animation: wiggle 2s infinite;
+}
 
-                <div class="lecture-slot">
-                    <div class="slot-time">
-                        <i class="fas fa-clock"></i> 02:00 PM
-                    </div>
-                    <div>
-                        <div class="slot-subject">Database Management</div>
-                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-303</div>
-                    </div>
-                    <div class="slot-status">
-                        <span class="status-badge status-upcoming">Upcoming</span>
-                    </div>
-                </div>
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
 
-                <div class="lecture-slot">
-                    <div class="slot-time">
-                        <i class="fas fa-clock"></i> 04:00 PM
-                    </div>
-                    <div>
-                        <div class="slot-subject">Algorithm Design</div>
-                        <div class="slot-room"><i class="fas fa-map-marker-alt"></i> Room: CS-304</div>
-                    </div>
-                    <div class="slot-status">
-                        <span class="status-badge status-upcoming">Upcoming</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        const board = document.getElementById("board");
-        const voiceBtn = document.getElementById("voiceWrite");
-        const cleanBtn = document.getElementById("smartClean");
-        const undoBtn = document.getElementById("undo");
-        const pinBtn = document.getElementById("pin");
-        const downloadBtn = document.getElementById("download");
-        const voiceCleanBtn = document.getElementById("voiceClean");
+/* Usage Indicator Enhanced */
+.usage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
-        let pinned = false;
-        let history = [];
+.usage-label {
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-/* Save History */
-        function save() { history.push(board.innerHTML); }
+.usage-fill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: width 0.5s ease-out;
+  box-shadow: 0 0 15px rgba(50, 205, 50, 0.5);
+}
 
-/* Voice Write */
-         voiceBtn.onclick = () => {
-             const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-             rec.start();
-             rec.onresult = e => { save(); board.innerHTML += "<br>• " + e.results[0][0].transcript; }
-};
-         cleanBtn.onclick = () => {
-          if(pinned) return alert("Pinned content locked 🔒");
-          save();
-          board.innerHTML = "";
-};
+.usage-percentage {
+  color: white;
+  font-weight: 700;
+  font-size: 12px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
 
-/* Undo */
-         undoBtn.onclick = () => { if(history.length) board.innerHTML = history.pop(); };
+/* Clean Options Enhanced */
+.clean-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
 
-/* Pin */
-         pinBtn.onclick = () => {
-         pinned = !pinned;
-         pinBtn.innerText = pinned ? "🔒 Pinned" : "📌 Pin";
-} ;
+.clean-option::before {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
 
-/* Voice Clean */
-         voiceCleanBtn.onclick = () => {
-         const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-         rec.start();
-         rec.onresult = e => {
-         if(e.results[0][0].transcript.toLowerCase().includes("clear") && !pinned){
-         save(); board.innerHTML="";
-   }
- };
-};
+.clean-option:hover::before {
+  left: 100%;
+}
 
-/* Download Notes */
-         downloadBtn.onclick = () => {
-         const blob = new Blob([board.innerText], {type:"text/plain"});
-         const a = document.createElement("a");
-         a.href = URL.createObjectURL(blob);
-         a.download = "VirtuBoard_Notes.txt";
-         a.click();
-};
-</script>
+.clean-option.danger {
+  border-color: rgba(255, 68, 68, 0.3);
+}
 
-</body>
-</html>
+.clean-option.danger:hover {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  border-color: #ff4444;
+}
+
+.option-desc {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* Voice Commands Enhanced */
+.voice-title {
+  color: #32cd32;
+  font-weight: 700;
+  margin-bottom: 15px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.voice-command {
+  position: relative;
+  padding-left: 35px;
+  transition: all 0.3s ease;
+}
+
+.voice-command:hover {
+  transform: translateX(5px);
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
+}
+
+.voice-command i {
+  position: absolute;
+  left: 12px;
+}
+
+/* Timetable Enhanced */
+.timetable-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.refresh-btn {
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
+  border: 2px solid rgba(144, 238, 144, 0.4);
+  color: #32cd32;
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refresh-btn:hover {
+  background: linear-gradient(135deg, #90ee90, #32cd32);
+  color: white;
+  transform: rotate(180deg);
+}
+
+.lecture-slot {
+  position: relative;
+}
+
+.lecture-slot.active {
+  background: linear-gradient(135deg, rgba(0, 255, 0, 0.1), rgba(50, 205, 50, 0.08));
+  border-left-color: #00ff00;
+  box-shadow: 0 5px 25px rgba(0, 255, 0, 0.2);
+}
+
+.lecture-slot.completed {
+  opacity: 0.7;
+}
+
+.slot-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.slot-professor {
+  color: #666;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Alert Animation */
+.animate-pulse {
+  animation: pulse-alert 2s infinite;
+}
+
+@keyframes pulse-alert {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+/* Smooth Scrolling */
+.page-container {
+  scroll-behavior: smooth;
+}
+
+/* Lecture Content Enhancements */
+.lecture-content {
+  position: relative;
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.lecture-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lecture-content::-webkit-scrollbar-track {
+  background: rgba(144, 238, 144, 0.1);
+  border-radius: 10px;
+}
+
+.lecture-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #90ee90, #32cd32);
+  border-radius: 10px;
+}
+
+.lecture-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #32cd32, #228b22);
+}
+
+.default-content {
+  color: #666;
+  font-style: italic;
+}
+
+.default-content strong {
+  color: #32cd32;
+  font-style: normal;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .timetable-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .day-selector {
+    width: 100%;
+  }
+  
+  .day-btn {
+    flex: 1;
+  }
+}
+
+/* Loading States */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(50, 205, 50, 0.2);
+  border-top-color: #32cd32;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Enhanced Notifications */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #32cd32, #90ee90);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(50, 205, 50, 0.4);
+  z-index: 9999;
+  animation: slideIn 0.3s ease-out;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 400px;
+}
+
+.notification-success {
+  background: linear-gradient(135deg, #32cd32, #90ee90);
+  box-shadow: 0 10px 40px rgba(50, 205, 50, 0.4);
+}
+
+.notification-error {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  box-shadow: 0 10px 40px rgba(255, 68, 68, 0.4);
+}
+
+.notification-info {
+  background: linear-gradient(135deg, #4a90e2, #6fa8e8);
+  box-shadow: 0 10px 40px rgba(74, 144, 226, 0.4);
+}
+
+.notification i {
+  font-size: 20px;
+}
+
+/* Offline Banner */
+.offline-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  color: white;
+  padding: 12px;
+  text-align: center;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+}
+
+.offline-banner i {
+  animation: pulse 2s infinite;
+}
+
+/* Button States */
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc !important;
+  color: #666 !important;
+}
+
+.control-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+/* Board Title Enhanced */
+.board-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.board-stats {
+  display: flex;
+  gap: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.word-count {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(144, 238, 144, 0.1);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+
+/* Clean Options as Buttons */
+.clean-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.clean-option {
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.15), rgba(50, 205, 50, 0.1));
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  padding: 15px;
+  border-radius: 12px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-weight: 600;
+  text-align: left;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.clean-option::before {
+  content: '';
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.clean-option:hover::before {
+  left: 100%;
+}
+
+.clean-option:hover {
+  background: linear-gradient(135deg, #90ee90, #32cd32);
+  color: white;
+  transform: translateX(8px);
+  box-shadow: 0 5px 20px rgba(144, 238, 144, 0.4);
+  border-color: #32cd32;
+}
+
+.clean-option i {
+  color: #32cd32;
+  font-size: 20px;
+  min-width: 20px;
+  transition: color 0.3s;
+}
+
+.clean-option:hover i {
+  color: white;
+}
+
+.clean-option div {
+  flex: 1;
+}
+
+.clean-option strong {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.option-desc {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.clean-option.danger {
+  border-color: rgba(255, 68, 68, 0.3);
+}
+
+.clean-option.danger i {
+  color: #ff4444;
+}
+
+.clean-option.danger:hover {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  border-color: #ff4444;
+}
+
+.clean-option.danger:hover i {
+  color: white;
+}
+
+/* Control Buttons Enhanced */
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.control-btn {
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(50, 205, 50, 0.15));
+  border: 2px solid rgba(144, 238, 144, 0.4);
+  color: #32cd32;
+  padding: 14px 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.control-btn span {
+  display: inline;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(200, 200, 200, 0.3) !important;
+  color: #999 !important;
+  border-color: rgba(200, 200, 200, 0.4) !important;
+}
+
+.control-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.control-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #90ee90, #32cd32);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(144, 238, 144, 0.4);
+}
+
+/* Voice Commands List */
+.voice-command-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .control-btn span {
+    display: none;
+  }
+  
+  .control-btn i {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+  
+  .control-btn {
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Timer Bar */
+.timer-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff4444, #ff6666);
+  transition: width 1s linear;
+  border-radius: 2px;
+}
+
+/* Status Listening Enhanced */
+.status.listening {
+  background: linear-gradient(135deg, #ff4444, #ff6666);
+  animation: pulse-status 1.5s infinite;
+}
+
+@keyframes pulse-status {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+  }
+}
