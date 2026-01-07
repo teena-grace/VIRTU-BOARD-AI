@@ -1,4 +1,9 @@
 'use client'
+useEffect(() => {
+  if (!document.cookie.includes("session")) {
+    window.location.href = "/login"
+  }
+}, [])
 
 import { useState, useEffect, useCallback } from 'react'
 import Header from '@/components/Header'
@@ -25,6 +30,7 @@ export default function Dashboard() {
   const [listeningFor, setListeningFor] = useState<'write' | 'clean' | null>(null)
 
   // Speech recognition for voice write
+
   const voiceWrite = useSpeechRecognition({
     onResult: (transcript) => {
       saveToHistory()
