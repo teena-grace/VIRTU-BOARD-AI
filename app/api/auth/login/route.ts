@@ -1,16 +1,61 @@
-import { NextRequest, NextResponse } from "next/server"
+// app/api/auth/login/route.ts
+import { NextResponse } from 'next/server'
+import { verifyPassword, generateToken } from '@/lib/auth'  // ✅ Add this import
+import { prisma } from '@/lib/prisma'  // ✅ Add this import
 
-const users: any[] = []
+export async function POST(request: Request) {
+  try {
+    const { email, password, role } = await request.json()
 
-export async function POST(req: NextRequest) {
-  const { email, password } = await req.json()
-  const user = users.find(u => u.email === email && u.password === password)
+    if (!email || !password || !role) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
 
-  if (!user) {
-    return NextResponse.json({ success: false, message: "Invalid credentials" }, { status: 401 })
+    const user = await prisma.user.findUnique({
+      where: { email }
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    const isValid = await verifyPassword(password, user.password)
+    if (!isValid) {
+      return NextResponse.json(
+        { error: 'Invalid credentials' },
+        { status: 401 }
+      )
+    }
+
+    if (user.role !== role) {
+      return NextResponse.json(
+        { error: 'Invalid user type selected' },
+        { status: 403 }
+      )
+    }
+
+    const token = generateToken(user.id, user.role)
+
+    return NextResponse.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    })
+  } catch (error) {
+    console.error('Login error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
-
-  const res = NextResponse.json({ success: true })
-  res.cookies.set("session", email)
-  return res
 }

@@ -1,28 +1,43 @@
+// app/page.tsx
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const router = useRouter()
 
   useEffect(() => {
-    router.push('/dashboard')
+    const token = localStorage.getItem('token')
+    const userStr = localStorage.getItem('user')
+
+    if (token && userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        switch (user.role) {
+          case 'ADMIN':
+            router.push('/admin/dashboard')
+            break
+          case 'TEACHER':
+            router.push('/teacher/dashboard')
+            break
+          default:
+            router.push('/dashboard')
+        }
+      } catch {
+        router.push('/login')
+      }
+    } else {
+      router.push('/login')
+    }
   }, [router])
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      height: '100vh',
-      background: 'linear-gradient(135deg, #90ee90, #32cd32)'
-    }}>
-      <div style={{ textAlign: 'center', color: 'white' }}>
-        <i className="fas fa-chalkboard-teacher" style={{ fontSize: '80px', marginBottom: '20px' }}></i>
-        <h1 style={{ fontSize: '48px', marginBottom: '10px' }}>VIRTU-BOARD AI</h1>
-        <p style={{ fontSize: '20px' }}>Loading your smart board...</p>
-      </div>
-    </div>
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  <div className="text-center">
+    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+    <p className="mt-4 text-gray-600">Redirecting...</p>
+  </div>
+</div>
   )
 }
