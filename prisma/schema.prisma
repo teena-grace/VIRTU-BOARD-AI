@@ -6,7 +6,8 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-   url      = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
+
 }
 
 model User {
@@ -17,9 +18,57 @@ model User {
   role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  boardContents BoardContent[]
-  schedules     Schedule[]
+
+  board       Board?
+  lectures    Lecture[]
+  attendance  Attendance[]
+
+  @@map("users")
+}
+
+model Board {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  content   String   @default("")
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("boards")
+}
+
+model Lecture {
+  id        String   @id @default(cuid())
+  userId    String
+  subject   String
+  teacher   String
+  time      String
+  room      String
+  isPublic  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attendance Attendance[]
+
+  @@map("lectures")
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  userId    String
+  lectureId String
+  date      DateTime
+  status    AttendanceStatus @default(PRESENT)
+  createdAt DateTime         @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lecture Lecture @relation(fields: [lectureId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lectureId, date])
+  @@map("attendance")
 }
 
 enum Role {
@@ -28,25 +77,8 @@ enum Role {
   ADMIN
 }
 
-model BoardContent {
-  id        String   @id @default(cuid())
-  content   String
-  isPinned  Boolean  @default(false)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Schedule {
-  id          String   @id @default(cuid())
-  subject     String
-  time        String
-  room        String
-  instructor  String
-  status      String   @default("upcoming")
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
 }

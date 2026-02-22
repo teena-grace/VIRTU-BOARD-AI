@@ -1,79 +1,100 @@
-import { NextRequest, NextResponse } from 'next/server'
-import type { Lecture } from '@/types'
+// app/api/schedule/route.ts
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { verifyToken } from '@/lib/auth'
 
-let schedule: Lecture[] = [
-  {
-    id: '1',
-    time: '09:00 AM',
-    subject: 'Data Structures',
-    room: 'CS-301',
-    status: 'completed',
-    professor: 'Dr. Smith'
-  },
-  {
-    id: '2',
-    time: '11:00 AM',
-    subject: 'Operating Systems',
-    room: 'CS-302',
-    status: 'active',
-    professor: 'Dr. Johnson'
-  },
-  {
-    id: '3',
-    time: '02:00 PM',
-    subject: 'Database Management',
-    room: 'CS-303',
-    status: 'upcoming',
-    professor: 'Dr. Williams'
-  },
-  {
-    id: '4',
-    time: '04:00 PM',
-    subject: 'Algorithm Design',
-    room: 'CS-304',
-    status: 'upcoming',
-    professor: 'Dr. Brown'
-  }
-]
-
-export async function GET() {
-  // Simulate real-time status updates
-  const now = new Date()
-  const currentHour = now.getHours()
-  
-  const updatedSchedule = schedule.map(lecture => {
-    const [time, period] = lecture.time.split(' ')
-    const [hours] = time.split(':').map(Number)
-    const lectureHour = period === 'PM' && hours !== 12 ? hours + 12 : hours
+export async function GET(request: Request) {
+  try {
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
     
-    if (currentHour > lectureHour + 1) {
-      return { ...lecture, status: 'completed' as const }
-    } else if (currentHour === lectureHour || currentHour === lectureHour + 1) {
-      return { ...lecture, status: 'active' as const }
-    } else {
-      return { ...lecture, status: 'upcoming' as const }
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-  })
 
-  return NextResponse.json({ schedule: updatedSchedule })
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    // Get lectures for the user
+    const lectures = await prisma.lecture.findMany({
+      where: {
+        OR: [
+          { userId: decoded.userId },
+          { isPublic: true }
+        ]
+      },
+      orderBy: { time: 'asc' }
+    })
+
+    // If no lectures, return demo schedule
+    if (lectures.length === 0) {
+      return NextResponse.json({
+        schedule: [
+          {
+            id: '1',
+            subject: 'Data Structures',
+            teacher: 'Dr. Smith',
+            time: '9:00 AM',
+            room: 'Room 101',
+            status: 'upcoming'
+          },
+          {
+            id: '2',
+            subject: 'Machine Learning',
+            teacher: 'Prof. Johnson',
+            time: '11:00 AM',
+            room: 'Lab 203',
+            status: 'upcoming'
+          },
+          {
+            id: '3',
+            subject: 'Web Development',
+            teacher: 'Dr. Williams',
+            time: '2:00 PM',
+            room: 'Room 305',
+            status: 'upcoming'
+          }
+        ]
+      })
+    }
+
+    return NextResponse.json({ schedule: lectures })
+  } catch (error) {
+    console.error('Schedule fetch error:', error)
+    return NextResponse.json({ error: 'Failed to fetch schedule' }, { status: 500 })
+  }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const newLecture: Lecture = await request.json()
-    schedule.push({
-      ...newLecture,
-      id: `${Date.now()}`
-    })
+    const token = request.headers.get('authorization')?.replace('Bearer ', '')
     
-    return NextResponse.json({ 
-      success: true, 
-      schedule 
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const decoded = verifyToken(token)
+    if (!decoded) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
+    }
+
+    const { subject, teacher, time, room, isPublic } = await request.json()
+
+    const lecture = await prisma.lecture.create({
+      data: {
+        userId: decoded.userId,
+        subject,
+        teacher,
+        time,
+        room,
+        isPublic: isPublic || false
+      }
     })
+
+    return NextResponse.json({ success: true, lecture })
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: (error as Error).message },
-      { status: 500 }
-    )
+    console.error('Lecture creation error:', error)
+    return NextResponse.json({ error: 'Failed to create lecture' }, { status: 500 })
   }
 }
